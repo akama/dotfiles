@@ -413,6 +413,13 @@ cmd_edit() {
 
     encrypt_to_age "$tmp" "$age_file"
 
+    # Deploy to local target so install doesn't see stale local content
+    local within_category="${age_rel_path#*/}"
+    local target="$HOME/${within_category%.age}"
+    mkdir -p "$(dirname "$target")"
+    cp "$tmp" "$target"
+    chmod 600 "$target"
+
     # Update sync hash so install doesn't see a conflict
     local hash_file
     hash_file="$(hash_file_path "$age_rel_path")"
