@@ -186,12 +186,6 @@ tree-rm() {
         return 1
     fi
 
-    # Kill tmux session if running
-    if tmux has-session -t "$name" 2>/dev/null; then
-        echo "Killing tmux session: $name"
-        tmux kill-session -t "$name"
-    fi
-
     # Forget the workspace in jj
     echo "Forgetting workspace: $name"
     jj -R "$repo_path" workspace forget "$name"
@@ -199,6 +193,13 @@ tree-rm() {
     # Remove the directory
     echo "Removing directory: $tree_path"
     rm -rf "$tree_path"
+
+    # Kill tmux session last — if we're running inside it, everything above
+    # needs to finish before the session dies
+    if tmux has-session -t "$name" 2>/dev/null; then
+        echo "Killing tmux session: $name"
+        tmux kill-session -t "$name"
+    fi
 
     echo "Done."
 }
